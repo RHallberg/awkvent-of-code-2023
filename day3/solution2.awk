@@ -11,9 +11,6 @@ NR == FNR {
 
 {
   start = 1
-  # Checking symbols on same line
-  start = 1
-  # Checking symbols on adjacent lines
   while(match(substr($0,start),/[0-9]+/)){
     p = start + RSTART - 1
     num = substr($0, start + RSTART - 1, RLENGTH)
@@ -26,15 +23,12 @@ NR == FNR {
 }
 
 function check_symbols(xpos,ypos,xlen,num){
-  no_adj = 1
   for(i=1;i<=xlen;i++){
     s = sprintf("%s:%s", ypos, xpos + i -1)
-    no_adj = no_adj && (sym_ix[s] == 0)
     if(sym_ix[s]){
       res[s] = sprintf("%s %s", res[s], num)
     }
   }
-  return no_adj
 }
 END{
   for(val in res){
