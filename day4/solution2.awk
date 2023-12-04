@@ -1,4 +1,3 @@
-BEGIN{sum=0}
 {
   cards[NR]=check_row($0)
 }
@@ -18,7 +17,6 @@ function check_row(row){
   }
   return nbrwins
 }
-
 END{
   for(currcard=1;currcard<=NR;currcard++){
     newcards = cards[currcard]
@@ -29,8 +27,6 @@ END{
         nbrcards[j+currcard]++
       }
     }
-
-
   }
   sum=0
   for(card=1;card <= NR; card++){
