@@ -19,7 +19,7 @@ BEGIN{
   for(n in nbrchars){
     nbr = nbrchars[n]
     # Five of a kind
-    if(nbr + jokers >= 5){
+    if(nbr + jokers == 5 || jokers == 5){
       type = "Five of a kind"
       card_score = sprintf("%s%s",107,card_score)
       scored=1
