@@ -20,7 +20,13 @@ function step(node,direction){
   delete paths
   return p
 }
-
+function gcd(a,b){
+  while(b){
+    r = a % b
+    a = b;b = r
+  }
+  return a
+}
 END {
   n=0;i=1
   while(nbrwins < nbr_current){
@@ -37,12 +43,10 @@ END {
     }
     i++;n++
   }
-  output = "https://www.wolframalpha.com/input?i=lcm%28"
-  for(v in wins){
-    output = sprintf("%s%s%%2C",output,wins[v])
+  sum = 1
+  for(i=1;i <= length(wins); i++){
+    v = wins[i]
+    sum = (sum * v) / gcd(sum,v)
   }
-  gsub(/%2C$/,"%29",output)
-  print "I can't solve this in awk. Go to wolfram alpha:"
-  print output
-  print "Go fuck yourself"
+  print int(sum)
 }
