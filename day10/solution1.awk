@@ -14,13 +14,27 @@ BEGIN{
   tf["7","W"] = "1;0;N"
   tf["7","S"] = "0;-1;E"
 
+  sym["|"] = "┃"
+  sym["-"] = "━"
+  sym["F"] = "┏"
+  sym["J"] = "┛"
+  sym["L"] = "┗"
+  sym["7"] = "┓"
+
 }
 
 {
   for(i=1;i<=NF;i++){
     if($i ~ /[^\.]/){
-      if($i == "S")start = sprintf("%s;%s", NR, i)
+      out[NR,i] = "\033[36m⊛\033[0m"
+      if($i == "S"){
+        start = sprintf("%s;%s", NR, i)
+        out[NR,i] = "\033[42mS\033[0m"
+      }
       pipes[NR,i] = $i
+    }
+    else{
+      out[NR,i] = "\033[36m⊛\033[0m"
     }
   }
 }
@@ -28,9 +42,35 @@ BEGIN{
 function step(pos){
   split(pos,pos_a,";");py=pos_a[1];px=pos_a[2];dir=pos_a[3]
   pipe = pipes[py,px]
+  pipe_loop[py,px] = pipe
+  out[py,px] = sprintf("\033[31m%s\033[0m",sym[pipe])
   split(tf[pipe,dir],tfs,";");y=tfs[1];x=tfs[2];d=tfs[3]
   py += y; px += x; dir = d
   return sprintf("%s;%s;%s",py,px,dir)
+}
+
+function push(val){
+  stack[++top] = val
+}
+
+function pop(){
+  return stack[top--]
+}
+
+function flood(start){
+  push(start)
+  while(top > 0){
+    v = pop();split(v,vv,";");vy = vv[1];vx = vv[2]
+    if(vy <= NR+1 && vx <= NF+1 && vy>= 0 && vx >= 0 && !pipe_loop[vy,vx] && !filled[vy,vx]){
+      out[vy,vx] = sprintf("\033[46m%s\033[0m",out[vy,vx])
+      filled[vy,vx] = 1
+      push(sprintf("%s;%s",vy-1,vx))
+      push(sprintf("%s;%s",vy+1,vx))
+      push(sprintf("%s;%s",vy,vx+1))
+      push(sprintf("%s;%s",vy,vx-1))
+    }
+  }
+
 }
 
 
@@ -50,6 +90,15 @@ END{
     n++
     split(p1,pp1,";");split(p2,pp2,";")
   }
+  step(p1)
+  flood("1;1")
 
+
+  for(i=1;i<=NR;i++){
+    for(j=1;j<=NF;j++){
+      printf out[i,j]
+    }
+    print ""
+  }
   print n
 }
