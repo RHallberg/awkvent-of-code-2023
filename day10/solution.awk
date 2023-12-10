@@ -25,16 +25,19 @@ BEGIN{
 
 {
   for(i=1;i<=NF;i++){
-    if($i ~ /[^\.]/){
-      out[NR,i] = "\033[36m⊛\033[0m"
+    if($i ~ /[^,*]/){
+      out[NR,i] = "\033[47m\033[30m*\033[0m"
       if($i == "S"){
         start = sprintf("%s;%s", NR, i)
         out[NR,i] = "\033[42mS\033[0m"
       }
       pipes[NR,i] = $i
     }
+    else if($i == "*"){
+      out[NR,i] = "\033[47m\033[30m*\033[0m"
+    }
     else{
-      out[NR,i] = "\033[36m⊛\033[0m"
+      out[NR,i] = "\033[36m \033[0m"
     }
   }
 }
@@ -60,14 +63,15 @@ function pop(){
 function flood(start){
   push(start)
   while(top > 0){
-    v = pop();split(v,vv,";");vy = vv[1];vx = vv[2]
-    if(vy <= NR+1 && vx <= NF+1 && vy>= 0 && vx >= 0 && !pipe_loop[vy,vx] && !filled[vy,vx]){
-      out[vy,vx] = sprintf("\033[46m%s\033[0m",out[vy,vx])
+    v = pop();split(v,vv,";");vy = vv[1];vx = vv[2];vd = vv[3]
+    pipe = pipe_loop[vy,vx]
+    if(vy <= NR+1 && vx <= NF && vy>= 1 && vx >= 1 && !pipe && !filled[vy,vx]){
+      out[vy,vx] = sprintf("\033[46m%s\033[0m"," ")
       filled[vy,vx] = 1
-      push(sprintf("%s;%s",vy-1,vx))
-      push(sprintf("%s;%s",vy+1,vx))
-      push(sprintf("%s;%s",vy,vx+1))
-      push(sprintf("%s;%s",vy,vx-1))
+      push(sprintf("%s;%s;S",vy-1,vx))
+      push(sprintf("%s;%s;N",vy+1,vx))
+      push(sprintf("%s;%s;W",vy,vx+1))
+      push(sprintf("%s;%s;E",vy,vx-1))
     }
   }
 
@@ -94,8 +98,9 @@ END{
   flood("1;1")
 
 
-  for(i=1;i<=NR;i++){
-    for(j=1;j<=NF;j++){
+
+  for(i=0;i<=NR+1;i++){
+    for(j=0;j<=NF+1;j++){
       printf out[i,j]
     }
     print ""
